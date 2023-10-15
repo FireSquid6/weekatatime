@@ -1,35 +1,36 @@
 package main
 
 import (
-	"fmt"
-	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
-	"net/http"
-	"os"
+	"context"
+	firebase "firebase.google.com/go"
+	"log"
 )
 
-type task struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Completed   bool   `json:"completed"`
-}
-
 func main() {
-	err := godotenv.Load()
+	ctx := context.Background()
+	config := &firebase.Config{ProjectID: "wkatatime"}
+	app, err := firebase.NewApp(ctx, config)
+
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		panic(err)
 	}
 
-	var port = os.Getenv("PORT")
-	fmt.Println("Port: " + port)
-	server(port)
-}
+	client, err := app.Firestore(ctx)
+	if err != nil {
+		panic(err)
+	}
 
-func server(port string) {
-	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
+	ref := client.Collection("tasks").NewDoc()
+	result, err := ref.Set(ctx, map[string]interface{}{
+		"title":       "A cool todo",
+		"description": "I have to kill Caleb",
 	})
-	e.Logger.Fatal(e.Start(":" + port))
+
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("Result: [%v]", result)
+
+	defer client.Close()
 }
