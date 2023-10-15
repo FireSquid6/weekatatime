@@ -23,7 +23,7 @@ func main() {
 	ref := client.Collection("tasks").NewDoc()
 	result, err := ref.Set(ctx, map[string]interface{}{
 		"title":       "A cool todo",
-		"description": "I have to kill Caleb",
+		"description": "I have to kill Tate",
 	})
 
 	if err != nil {
