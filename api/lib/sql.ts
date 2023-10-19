@@ -1,4 +1,13 @@
-import postgres from "postgres";
+import { Client } from "pg";
 
-console.log(process.env.PGURL);
-export const sql = postgres(process.env.PGURL);
+const databaseUrl = process.env.PGURL;
+
+const pgClient = new Client({
+  connectionString: databaseUrl,
+  ssl: true,
+});
+await pgClient.connect();
+
+export function getClient() {
+  return pgClient;
+}
